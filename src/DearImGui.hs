@@ -237,6 +237,9 @@ module DearImGui
 
     -- ** List Boxes
   , listBox
+  , beginListBox
+  , endListBox
+  , withListBox
 
     -- ** Data Plotting
   , plotLines
@@ -1609,6 +1612,21 @@ plotHistogram label values = liftIO $
   withArrayLen values \len valuesPtr ->
     Text.withCString label \labelPtr ->
       Raw.plotHistogram labelPtr valuesPtr (fromIntegral len)
+
+beginListBox :: MonadIO m => Text -> ImVec2 -> m Bool
+beginListBox label size = liftIO $ do
+  Text.withCString label \ptr ->
+    with size \sizePtr ->
+      Raw.beginListBox ptr sizePtr
+
+endListBox :: MonadIO m => m ()
+endListBox = Raw.endListBox
+
+-- | Create a listbox and append to it
+--
+-- The action will get 'False' if the menu is not visible.
+withListBox :: MonadUnliftIO m => Text -> ImVec2 -> (Bool -> m a) -> m a
+withListBox label size = bracket (beginListBox label size) (`when` endListBox)
 
 -- | Create a menu bar at the top of the screen and append to it.
 --

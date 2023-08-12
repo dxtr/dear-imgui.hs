@@ -193,6 +193,8 @@ module DearImGui.Raw
 
     -- ** List Boxes
   , listBox
+  , beginListBox
+  , endListBox
 
     -- * Data Plotting
   , plotLines
@@ -1268,6 +1270,16 @@ plotHistogram :: (MonadIO m) => CString -> Ptr CFloat -> CInt -> m ()
 plotHistogram labelPtr valuesPtr valuesLen = liftIO do
   [C.exp| void { PlotHistogram($(char* labelPtr), $(float* valuesPtr), $(int valuesLen)) } |]
 
+-- | Create a listbox
+--
+-- Wraps @ImGui::BeginListBox()@
+beginListBox :: (MonadIO m) => CString -> Ptr ImVec2 -> m Bool
+beginListBox labelPtr size = liftIO do
+  (0 /=) <$> [C.exp| bool { BeginListBox($(char* labelPtr), *$(ImVec2 *size)) } |]
+
+endListBox :: (MonadIO m) => m ()
+endListBox = liftIO do
+  [C.exp| void { EndListBox() } |]
 
 -- | Append to menu-bar of current window (requires 'ImGuiWindowFlagsMenuBar'
 -- flag set on parent window).
